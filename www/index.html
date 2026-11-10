@@ -2,26 +2,786 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Beyzâlem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
 <style>
-  body{margin:0;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    font-family:system-ui,sans-serif;background:linear-gradient(160deg,#0f3d3e,#14615f);color:#fff;text-align:center}
-  h1{font-size:44px;margin:0 0 8px;letter-spacing:1px}
-  p{opacity:.85;margin:0 0 32px}
-  .row{display:flex;gap:14px}
-  button{border:0;border-radius:14px;padding:14px 26px;font-size:18px;font-weight:700;color:#fff}
-  .ok{background:#2fb36f}.no{background:#d9534f}
-  #msg{margin-top:24px;min-height:24px}
+:root{
+  --teal:#0f4c4a; --teal2:#16706b; --teal3:#e3efed;
+  --gold:#f2b134; --gold2:#fff3d6;
+  --cream:#f7f3ea; --ink:#1d2b2a; --muted:#6c7a78;
+  --ok:#2fa866; --okbg:#e2f5ea; --no:#d64545; --nobg:#fbe5e5;
+  --card:#ffffff; --line:#e7e1d3;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#d9d3c4}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);display:flex;justify-content:center}
+#app{width:100%;max-width:430px;min-height:100vh;background:var(--cream);position:relative;display:flex;flex-direction:column;overflow:hidden}
+button{font-family:inherit;cursor:pointer;border:0}
+.scroll{flex:1;overflow-y:auto;padding:16px 16px 96px}
+h2{margin:6px 0 12px;font-size:20px;font-weight:900}
+.muted{color:var(--muted)}
+
+/* Top bar */
+.top{background:linear-gradient(150deg,var(--teal),var(--teal2));color:#fff;padding:18px 16px 16px;border-radius:0 0 26px 26px}
+.brand{display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:26px;font-weight:900;letter-spacing:.5px}
+.logo span{color:var(--gold)}
+.pills{display:flex;gap:6px}
+.pill{background:rgba(255,255,255,.14);padding:5px 10px;border-radius:999px;font-weight:800;font-size:13px;display:flex;gap:4px;align-items:center}
+.lvl{margin-top:14px;display:flex;align-items:center;gap:12px}
+.lvlbadge{width:46px;height:46px;border-radius:14px;background:var(--gold);color:var(--teal);display:grid;place-items:center;font-weight:900;font-size:20px;flex:none}
+.lvlinfo{flex:1}
+.lvlinfo b{font-size:15px}
+.bar{height:9px;background:rgba(255,255,255,.2);border-radius:9px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--gold);border-radius:9px;transition:width .6s}
+.bar.light{background:var(--teal3)}
+.bar.light i{background:var(--teal2)}
+.small{font-size:12px;opacity:.85;margin-top:4px}
+
+/* Cards */
+.card{background:var(--card);border-radius:18px;padding:14px;border:1px solid var(--line)}
+.daily{display:flex;gap:12px;align-items:center;margin:14px 0 4px;background:var(--gold2);border-color:#f1dca8}
+.daily .ic{font-size:30px}
+.daily b{display:block}
+.btn{border-radius:14px;padding:13px 18px;font-weight:900;font-size:16px}
+.btn.gold{background:var(--gold);color:var(--teal)}
+.btn.teal{background:var(--teal);color:#fff}
+.btn.ghost{background:var(--teal3);color:var(--teal)}
+.btn.wide{width:100%}
+.quick{display:flex;gap:10px;margin:14px 0}
+.quick .btn{flex:1}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cat{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px;text-align:left;display:flex;flex-direction:column;gap:6px;min-height:112px;position:relative}
+.cat .e{font-size:26px}
+.cat b{font-size:14.5px;line-height:1.2}
+.cat .d{font-size:11.5px;color:var(--muted);line-height:1.3}
+.cat .st{position:absolute;top:10px;right:10px;font-size:11px;color:#c99418;font-weight:900;letter-spacing:-1px}
+.cat:active{transform:scale(.97)}
+.cat.new::after{content:'YENİ';position:absolute;top:10px;right:10px;background:var(--teal2);color:#fff;font-size:9px;font-weight:900;padding:2px 6px;border-radius:6px}
+
+/* Bottom nav */
+.nav{position:absolute;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;padding:6px 4px 10px}
+.nav button{flex:1;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:800;color:var(--muted);padding:6px 0}
+.nav button .i{font-size:21px;filter:grayscale(1);opacity:.6}
+.nav button.on{color:var(--teal)}
+.nav button.on .i{filter:none;opacity:1}
+
+/* Game */
+.gtop{display:flex;align-items:center;gap:10px;padding:14px 16px 8px}
+.x{width:38px;height:38px;border-radius:12px;background:#fff;border:1px solid var(--line);font-size:18px;font-weight:900;color:var(--muted)}
+.prog{flex:1}
+.prog .bar{background:var(--line)}
+.prog .bar i{background:var(--teal2)}
+.gmeta{display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:var(--muted);margin-bottom:5px}
+.timer{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:900;color:var(--teal);background:#fff;border:3px solid var(--teal2);font-size:15px}
+.timer.warn{border-color:var(--no);color:var(--no)}
+.gbody{flex:1;overflow-y:auto;padding:6px 16px 16px}
+.qcard{background:#fff;border:1px solid var(--line);border-radius:22px;padding:18px 16px;text-align:center}
+.qcat{display:inline-block;font-size:12px;font-weight:900;color:var(--teal2);background:var(--teal3);padding:4px 10px;border-radius:999px}
+.qtext{font-size:20px;font-weight:800;margin:14px 0 4px;line-height:1.35}
+.qtext.big{font-size:34px;letter-spacing:6px}
+.qtext.emo{font-size:44px;letter-spacing:4px}
+.qsub{font-size:13px;color:var(--muted)}
+.opts{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.opt{background:#fff;border:2px solid var(--line);border-radius:16px;padding:14px;font-size:16px;font-weight:800;text-align:left;color:var(--ink);display:flex;gap:10px;align-items:center}
+.opt .k{width:28px;height:28px;border-radius:9px;background:var(--teal3);color:var(--teal);display:grid;place-items:center;font-size:13px;flex:none}
+.opt.sel{border-color:var(--teal2);background:#f0f8f7}
+.opt.sel .k{background:var(--teal2);color:#fff}
+.opt.ok{border-color:var(--ok);background:var(--okbg)}
+.opt.ok .k{background:var(--ok);color:#fff}
+.opt.no{border-color:var(--no);background:var(--nobg)}
+.opt.no .k{background:var(--no);color:#fff}
+.opt.gone{opacity:.25;pointer-events:none}
+.opt:disabled{cursor:default}
+
+.slots{display:flex;flex-wrap:nowrap;justify-content:center;gap:5px;margin:16px 0 6px}
+.slot{flex:1 1 0;max-width:38px;min-width:0;height:46px;border-radius:11px;border:2px dashed #c9c1ad;display:grid;place-items:center;font-size:21px;font-weight:900;background:#fff}
+.slot.fixed{border:2px solid var(--line);background:var(--teal3);color:var(--teal)}
+.slot.fill,.slot.ok,.slot.no{border-style:solid}
+.slot.fill{border:2px solid var(--teal2);color:var(--teal)}
+.slot.ok{border-color:var(--ok);background:var(--okbg);color:var(--ok)}
+.slot.no{border-color:var(--no);background:var(--nobg);color:var(--no)}
+.tiles{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:14px}
+.tile{width:44px;height:48px;border-radius:12px;background:var(--gold);color:var(--teal);font-size:21px;font-weight:900;box-shadow:0 3px 0 #c98f12}
+.tile.used{visibility:hidden}
+.tilectl{display:flex;justify-content:center;gap:8px;margin-top:12px}
+.tilectl button{background:var(--teal3);color:var(--teal);font-weight:800;padding:8px 14px;border-radius:10px;font-size:13px}
+
+.clues{display:flex;flex-direction:column;gap:8px;margin-top:12px;text-align:left}
+.clue{background:var(--gold2);border-radius:12px;padding:10px 12px;font-weight:700;font-size:14.5px}
+.clue.lock{background:#efeadf;color:#a39b8a}
+.morebtn{margin-top:8px;background:var(--teal3);color:var(--teal);font-weight:800;padding:9px 14px;border-radius:12px;font-size:13px}
+
+.feedback{margin-top:12px;border-radius:16px;padding:12px 14px;font-weight:800;font-size:15px}
+.feedback.ok{background:var(--okbg);color:#1d7a47}
+.feedback.no{background:var(--nobg);color:#a92f2f}
+.feedback small{display:block;font-weight:700;margin-top:3px;font-size:13px}
+
+.gfoot{padding:10px 16px 16px;background:var(--cream);border-top:1px solid var(--line)}
+.jokers{display:flex;gap:8px;margin-bottom:10px}
+.joker{flex:1;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 6px;font-weight:800;font-size:12.5px;color:var(--teal);display:flex;align-items:center;justify-content:center;gap:5px}
+.joker:disabled{opacity:.4}
+.joker b{background:var(--gold);border-radius:7px;padding:0 6px;font-size:11.5px}
+.actions{display:flex;gap:10px}
+.beyzgec{flex:1;background:#fff;color:var(--no);border:2px solid #f0c9c9;border-radius:16px;padding:14px 8px;font-size:17px;font-weight:900}
+.beyzala{flex:1.5;background:var(--ok);color:#fff;border-radius:16px;padding:14px 8px;font-size:18px;font-weight:900;box-shadow:0 4px 0 #1f7d4a}
+.beyzala:disabled{background:#a9d7bd;box-shadow:none}
+.beyzgec:disabled{opacity:.4}
+.beyzgec small,.beyzala small{display:block;font-size:10.5px;font-weight:800;opacity:.85}
+
+/* Result */
+.result{text-align:center;padding:30px 20px}
+.stars{font-size:52px;letter-spacing:6px;margin:10px 0}
+.stars .s{display:inline-block;filter:grayscale(1);opacity:.25;transform:scale(.6);transition:all .4s}
+.stars .s.on{filter:none;opacity:1;transform:scale(1)}
+.rgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:18px 0}
+.rbox{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 4px}
+.rbox b{display:block;font-size:22px;color:var(--teal)}
+.rbox span{font-size:11px;color:var(--muted);font-weight:800}
+.newb{background:var(--gold2);border-radius:14px;padding:10px;margin:8px 0;font-weight:800}
+
+/* lists */
+.task{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+.task .ic{font-size:26px}
+.task .tb{flex:1}
+.task b{font-size:14.5px}
+.claim{background:var(--gold);color:var(--teal);font-weight:900;border-radius:10px;padding:8px 10px;font-size:12px}
+.claim:disabled{background:#eee;color:#aaa}
+.done{color:var(--ok);font-weight:900;font-size:12px}
+.week{display:flex;justify-content:space-between;margin-top:10px}
+.day{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:800;color:var(--muted)}
+.day i{width:30px;height:30px;border-radius:50%;background:#efeadf;display:grid;place-items:center;font-style:normal;font-size:14px}
+.day.on i{background:var(--gold)}
+.badges{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.badge{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 6px;text-align:center}
+.badge .e{font-size:30px}
+.badge b{display:block;font-size:12.5px;margin-top:4px}
+.badge span{display:block;font-size:10.5px;color:var(--muted);margin-top:2px;line-height:1.25}
+.badge.lock .e{filter:grayscale(1);opacity:.3}
+.badge.lock b{color:#a39b8a}
+.stat4{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.mrow{margin-bottom:10px}
+.mrow .h{display:flex;justify-content:space-between;font-size:13px;font-weight:800;margin-bottom:4px}
+.set{display:flex;justify-content:space-between;align-items:center;padding:13px 2px;border-bottom:1px solid var(--line);font-weight:800}
+.set:last-child{border-bottom:0}
+.sw{width:48px;height:28px;border-radius:999px;background:#d6cfbf;position:relative;transition:.2s}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s}
+.sw.on{background:var(--ok)}
+.sw.on::after{left:23px}
+.seg{display:flex;background:var(--teal3);border-radius:10px;padding:3px}
+.seg button{background:none;padding:6px 10px;border-radius:8px;font-weight:800;color:var(--teal);font-size:13px}
+.seg button.on{background:#fff}
+.linkrow{background:none;width:100%;text-align:left;font-size:15px;color:var(--ink)}
+.prose{font-size:14.5px;line-height:1.55}
+
+/* modal & toast */
+.modal{position:absolute;inset:0;background:rgba(15,40,38,.55);display:flex;align-items:center;justify-content:center;padding:24px;z-index:20}
+.mbox{background:#fff;border-radius:22px;padding:20px;width:100%;text-align:center}
+.mbox h3{margin:4px 0 8px}
+.mbox .actions{margin-top:16px}
+.toast{position:absolute;top:16px;left:50%;transform:translateX(-50%) translateY(-120px);background:var(--teal);color:#fff;padding:12px 18px;border-radius:16px;font-weight:900;z-index:30;transition:transform .4s;box-shadow:0 8px 24px rgba(0,0,0,.2);white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.splash{position:absolute;inset:0;background:linear-gradient(160deg,var(--teal),var(--teal2));display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;z-index:40;transition:opacity .5s}
+.splash .logo{font-size:46px}
+.splash p{opacity:.8;font-weight:700;margin:6px 0 0}
+@keyframes pop{0%{transform:scale(.9)}60%{transform:scale(1.04)}100%{transform:scale(1)}}
+.pop{animation:pop .3s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.shake{animation:shake .3s}
 </style>
 </head>
 <body>
-  <h1>Beyzâlem</h1>
-  <p>Test sürümü — APK derleme denemesi</p>
-  <div class="row">
-    <button class="ok" onclick="msg.textContent='Beyzala! ✓'">Beyzala</button>
-    <button class="no" onclick="msg.textContent='Beyzgeç ✗'">Beyzgeç</button>
-  </div>
-  <div id="msg"></div>
+<div id="app"></div>
+
+<script src="data/d1.js"></script>
+<script src="data/d2.js"></script>
+<script src="data/d3.js"></script>
+<script src="data/d4.js"></script>
+<script>
+/* =========================================================
+   BEYZÂLEM — ön izleme sürümü
+   Tüm soru ve cevaplar özgün olarak hazırlanmıştır.
+   Atasözleri ve deyimler halkın ortak malıdır.
+   ========================================================= */
+
+const TR = s => s.toLocaleUpperCase('tr-TR');
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+
+/* ---------- SORU HAVUZU (data/d1-d4.js dosyalarından) ---------- */
+const lines = t => (t || '').split('\n').map(x => x.trim()).filter(Boolean);
+const WORDS = [...new Set((RAW.words || '').split(/\s+/).filter(w => w.length >= 4 && w.length <= 10))];
+const LETTERS = 'ABCÇDEFGHIİJKLMNOÖPRSŞTUÜVYZ'.split('');
+
+const mc = (q, answer, wrongs, extra = {}) => ({ kind: 'mc', q, answer, wrongs, ...extra });
+function ek(w) {
+  const v = [...low(w)].reverse().find(c => 'aeıioöuü'.includes(c)) || 'e';
+  const son = low(w).slice(-1); const sesli = 'aeıioöuü'.includes(son);
+  const u = { a: 'ın', ı: 'ın', e: 'in', i: 'in', o: 'un', u: 'un', ö: 'ün', ü: 'ün' }[v];
+  return (sesli ? 'n' : '') + u;
+}
+const low = w => w.toLocaleLowerCase('tr-TR');
+const related = (a, b) => { a = low(a); b = low(b); return a === b || (a.length >= 4 && b.length >= 4 && a.slice(0, 4) === b.slice(0, 4)); };
+const fromPairs = (txt, tmpl, extra = {}) => {
+  const pairs = lines(txt).map(l => l.split('|'));
+  return pairs.map(([p, a]) => {
+    const others = shuffle(pairs.filter(x => !x.some(w => related(w, p) || related(w, a))).map(x => x[1]));
+    return mc(tmpl(p), a, [...new Set(others)].slice(0, 3), extra);
+  });
+};
+const fromRows = (txt, make) => {
+  const seen = new Set();
+  return lines(txt).map(l => l.split('|')).filter(r => { const k = r[0]; if (seen.has(k)) return false; seen.add(k); return true; }).map(make);
+};
+
+const BANK = {
+  anlam:   fromRows(RAW.anlam,  r => mc(`“${r[0]}” ne demek?`, r[1], r.slice(2, 5))),
+  tanim:   fromRows(RAW.tanim,  r => mc(`“${r[0]}”`, r[1], r.slice(2, 5), { sub: 'Bu tanım hangi kelimeye ait?' })),
+  deyim:   fromRows(RAW.deyim,  r => mc(`“${r[0]}” ne demek?`, r[1], r.slice(2, 5))),
+  esanlam: fromPairs(RAW.esanlam, p => `“${p}” kelimesinin eş anlamlısı hangisi?`),
+  zit:     fromPairs(RAW.zit, p => `“${p}” kelimesinin zıt anlamlısı hangisi?`),
+  yazim:   fromRows(RAW.yazim,  r => mc('Hangisinin yazımı doğru?', r[0], [r[1]], { sub: 'Doğru yazımı seç' })),
+  atasozu: fromRows(RAW.atasozu, r => mc(r[0], r[1], r.slice(2, 5), { sub: 'Boşluğa hangisi gelmeli?' })),
+  genel:   fromRows(RAW.genel,  r => mc(r[0], r[1], r.slice(2, 5))),
+  bilmece: fromRows(RAW.bilmece, r => mc(r[0], r[1], r.slice(2, 5), { sub: 'Bil bakalım ben neyim?' })),
+  dy:      fromRows(RAW.dy,     r => mc(r[0], r[1] === 'D' ? 'Doğru' : 'Yanlış', [r[1] === 'D' ? 'Yanlış' : 'Doğru'], { fixed: true, sub: 'Bu bilgi doğru mu?' })),
+  ortak:   fromRows(RAW.ortak,  r => mc(r[0], r[1], r.slice(2, 5), { sub: 'Üç kelimeyle de birleşen kelime hangisi?' })),
+  emoji:   fromRows(RAW.emoji,  r => mc(r[0], r[1], r.slice(2, 5), { emo: true, sub: 'Emojiler neyi anlatıyor?' })),
+  ipucu:   fromRows(RAW.ipucu,  r => ({ kind: 'clue', q: 'Ben neyim?', answer: r[0], clues: r[1].split(';'), wrongs: r.slice(2, 5) })),
+};
+// Plaka ve başkent tablolarından üretilen genel kültür soruları
+(() => {
+  const iller = (RAW.plaka || '').split(',').map(x => x.trim()).filter(Boolean);
+  const kod = i => String(i + 1).padStart(2, '0');
+  iller.forEach((il, i) => {
+    const w = shuffle(iller.filter(x => x !== il)).slice(0, 3);
+    BANK.genel.push(mc(`Plaka kodu ${kod(i)} olan il hangisidir?`, il, w));
+    const wn = shuffle(iller.map((_, j) => j).filter(j => j !== i)).slice(0, 3).map(kod);
+    BANK.genel.push(mc(`${il} ilinin plaka kodu kaçtır?`, kod(i), wn));
+  });
+  const caps = lines(RAW.baskent).map(l => l.split('|'));
+  caps.forEach(([ulke, b]) => {
+    const w = shuffle(caps.filter(x => x[1] !== b).map(x => x[1])).slice(0, 3);
+    BANK.genel.push(mc(`${ulke}’nın başkenti neresidir?`.replace(/(.)’nın/, (m, c) => c + '’' + ek(ulke)), b, w));
+  });
+})();
+const POOL_SIZE = Object.values(BANK).reduce((a, b) => a + b.length, 0);
+
+const CATS = [
+  { id: 'eksik',   e: '🧩', n: 'Eksik Harfi Bul',     d: 'Boşlukları doğru harflerle doldur.', type: 'missing' },
+  { id: 'karisik', e: '🔀', n: 'Karışık Harfler',     d: 'Harfleri sıraya koy, kelimeyi bul.', type: 'scramble' },
+  { id: 'anlam',   e: '💬', n: 'Anlamını Bul',        d: 'Kelimenin anlamını seç.' },
+  { id: 'tanim',   e: '🔎', n: 'Tanımdan Kelimeye',   d: 'Tanımı verilen kelimeyi bul.' },
+  { id: 'esanlam', e: '🤝', n: 'Eş Anlamlısı Ne?',    d: 'Aynı anlama gelen kelime.' },
+  { id: 'zit',     e: '⚡', n: 'Zıddını Bul',         d: 'Karşıt anlamlı kelime.' },
+  { id: 'yazim',   e: '✍️', n: 'Hangisi Doğru?',      d: 'Doğru yazımı seç.' },
+  { id: 'atasozu', e: '📜', n: 'Sözü Tamamla',        d: 'Atasözündeki boşluğu doldur.' },
+  { id: 'deyim',   e: '🎭', n: 'Deyimin Anlamı',      d: 'Deyimin ne demek olduğunu bul.', isNew: true },
+  { id: 'genel',   e: '🧠', n: 'Genel Kültür',        d: 'Tarih, coğrafya, bilim, sanat.' },
+  { id: 'ipucu',   e: '🕵️', n: 'İpuçlarından Bul',    d: 'Erken bilirsen daha çok puan.' },
+  { id: 'ortak',   e: '🔗', n: 'Ortak Kelime',        d: 'Üç kelimeyi bağlayanı bul.' },
+  { id: 'emoji',   e: '😀', n: 'Emojiden Bul',        d: 'Emojilerdeki deyim ya da nesne.' },
+  { id: 'bilmece', e: '🪄', n: 'Bilmece',             d: 'Bil bakalım ben neyim?', isNew: true },
+  { id: 'dy',      e: '✅', n: 'Doğru mu Yanlış mı?', d: 'Bilgi doğru mu, değil mi?', isNew: true },
+  { id: 'zaman',   e: '⏱️', n: 'Zamana Karşı',        d: '60 saniyede en çok doğru!', type: 'time', isNew: true },
+];
+const catById = id => CATS.find(c => c.id === id);
+const MC_POOL_CATS = ['anlam', 'tanim', 'esanlam', 'zit', 'atasozu', 'deyim', 'genel', 'ortak', 'bilmece', 'dy'];
+
+const TITLES = [[1, 'Acemi'], [3, 'Çırak'], [6, 'Kalfa'], [10, 'Usta'], [15, 'Üstat'], [20, 'Allâme'], [30, 'Bilge']];
+const titleOf = lv => TITLES.filter(t => lv >= t[0]).pop()[1];
+const needFor = lv => 80 + lv * 40;
+function levelInfo(xp) { let lv = 1, rest = xp; while (rest >= needFor(lv)) { rest -= needFor(lv); lv++; } return { lv, rest, need: needFor(lv) }; }
+
+const BADGES = [
+  { id: 'ilk', e: '🌱', n: 'İlk Adım', d: 'İlk turunu tamamla', ok: s => s.stats.rounds >= 1 },
+  { id: 'mukemmel', e: '💎', n: 'Kusursuz', d: 'Bir turu hatasız bitir', ok: s => s.stats.perfect >= 1 },
+  { id: 'yuz', e: '💯', n: 'Yüzlük', d: '100 doğru cevap', ok: s => s.stats.correct >= 100 },
+  { id: 'bin', e: '🏛️', n: 'Bin Soru', d: '1000 soru cevapla', ok: s => s.stats.answered >= 1000 },
+  { id: 'kelime', e: '🔤', n: 'Kelime Ustası', d: 'Harf oyunlarında 50 doğru', ok: s => ((s.perCat.karisik || {}).c || 0) + ((s.perCat.eksik || {}).c || 0) >= 50 },
+  { id: 'hiz', e: '⚡', n: 'Hız Canavarı', d: 'Zamana Karşı’da 15 doğru', ok: s => s.stats.timeBest >= 15 },
+  { id: 'kasif', e: '🧭', n: 'Kâşif', d: 'Tüm kategorileri dene', ok: s => CATS.every(c => (s.perCat[c.id] || {}).p) },
+  { id: 'seri3', e: '🔥', n: 'Isınıyor', d: '3 gün üst üste oyna', ok: s => s.streak.best >= 3 },
+  { id: 'seri7', e: '🏆', n: 'Haftanın Yıldızı', d: '7 gün üst üste oyna', ok: s => s.streak.best >= 7 },
+  { id: 'dedektif', e: '🕵️', n: 'Dedektif', d: 'İlk ipucuyla bil', ok: s => s.stats.firstClue >= 1 },
+  { id: 'lv5', e: '🎖️', n: 'Kalfalık Yolu', d: '5. seviyeye ulaş', ok: s => levelInfo(s.xp).lv >= 5 },
+  { id: 'lv10', e: '👑', n: 'Usta', d: '10. seviyeye ulaş', ok: s => levelInfo(s.xp).lv >= 10 },
+];
+
+const TASKS = [
+  { id: 't1', e: '📝', n: 'Bugün 20 soru cevapla', goal: 20, val: d => d.answered, xp: 40, joker: 'half' },
+  { id: 't2', e: '🎯', n: '3 farklı kategoride oyna', goal: 3, val: d => d.cats.length, xp: 40, joker: 'hint' },
+  { id: 't3', e: '⭐', n: 'Bir turda 3 yıldız kazan', goal: 1, val: d => d.three ? 1 : 0, xp: 60, joker: 'pass' },
+];
+
+/* ---------- KAYIT ---------- */
+const KEY = 'beyzalem_v1';
+const fresh = () => ({
+  xp: 0, starsTotal: 0, jokers: { half: 3, hint: 3, pass: 3 },
+  stats: { answered: 0, correct: 0, rounds: 0, perfect: 0, timeBest: 0, firstClue: 0 },
+  perCat: {}, catStars: {}, seen: {}, badges: [],
+  daily: { date: today(), answered: 0, cats: [], three: false, claimed: [] },
+  streak: { last: null, count: 0, best: 0, days: [] },
+  settings: { sound: true, vib: true, time: 30 },
+});
+let S;
+try { S = Object.assign(fresh(), JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { S = fresh(); }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+function rollDaily() { if (S.daily.date !== today()) S.daily = { date: today(), answered: 0, cats: [], three: false, claimed: [] }; }
+rollDaily();
+
+/* ---------- SES / TİTREŞİM ---------- */
+let AC;
+function beep(type) {
+  if (!S.settings.sound) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const notes = { ok: [660, 880], no: [220, 160], tap: [520], up: [523, 659, 784, 1046] }[type] || [440];
+    notes.forEach((f, i) => {
+      const o = AC.createOscillator(), g = AC.createGain();
+      o.type = type === 'no' ? 'square' : 'sine'; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, AC.currentTime + i * 0.09);
+      g.gain.exponentialRampToValueAtTime(0.12, AC.currentTime + i * 0.09 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime + i * 0.09 + 0.16);
+      o.connect(g).connect(AC.destination); o.start(AC.currentTime + i * 0.09); o.stop(AC.currentTime + i * 0.09 + 0.2);
+    });
+  } catch (e) {}
+}
+const buzz = ms => { if (S.settings.vib) try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} };
+
+/* ---------- SORU ÜRETİMİ ---------- */
+function nextFromBank(catId) {
+  const pool = BANK[catId];
+  S.seen[catId] = S.seen[catId] || [];
+  let unseen = pool.filter(q => !S.seen[catId].includes(q.q + q.answer));
+  if (!unseen.length) { S.seen[catId] = []; unseen = pool; }
+  const q = pick(unseen);
+  S.seen[catId].push(q.q + q.answer);
+  return prepare(q, catId);
+}
+function prepare(q, catId) {
+  const o = { ...q, cat: catId };
+  if (q.kind === 'mc' || q.kind === 'clue') o.opts = q.fixed ? ['Doğru', 'Yanlış'] : shuffle([q.answer, ...q.wrongs]);
+  return o;
+}
+function genScramble() {
+  const w = pick(WORDS); const L = [...w]; let s;
+  do { s = shuffle(L); } while (s.join('') === w && new Set(L).size > 1);
+  return { kind: 'tiles', cat: 'karisik', answer: w, letters: s, shown: s.join(' '), mode: 'scramble' };
+}
+function genMissing() {
+  const w = pick(WORDS); const L = [...w];
+  const hideN = Math.max(1, Math.round(L.length * 0.4));
+  const idx = shuffle(L.map((_, i) => i)).slice(0, hideN).sort((a, b) => a - b);
+  const missing = idx.map(i => L[i]);
+  const decoys = shuffle(LETTERS.filter(c => !L.includes(c))).slice(0, 2);
+  return { kind: 'tiles', cat: 'eksik', answer: w, mask: L.map((c, i) => idx.includes(i) ? null : c), letters: shuffle([...missing, ...decoys]), mode: 'missing' };
+}
+function makeQuestion(catId) {
+  if (catId === 'karisik') return genScramble();
+  if (catId === 'eksik') return genMissing();
+  if (catId === 'zaman') return nextFromBank(pick(MC_POOL_CATS));
+  return nextFromBank(catId);
+}
+
+/* ---------- EKRANLAR ---------- */
+const app = document.getElementById('app');
+let tab = 'home', G = null, timerId = null;
+
+function header() {
+  const li = levelInfo(S.xp);
+  return `<div class="top">
+    <div class="brand"><div class="logo">Beyz<span>â</span>lem</div>
+      <div class="pills"><div class="pill">🔥 ${S.streak.count}</div><div class="pill">⭐ ${S.starsTotal}</div></div></div>
+    <div class="lvl"><div class="lvlbadge">${li.lv}</div>
+      <div class="lvlinfo"><b>${titleOf(li.lv)}</b> · Seviye ${li.lv}
+        <div class="bar"><i style="width:${Math.round(li.rest / li.need * 100)}%"></i></div>
+        <div class="small">${li.rest} / ${li.need} XP · sonraki seviyeye ${li.need - li.rest} XP</div></div></div>
+  </div>`;
+}
+function nav() {
+  const items = [['home', '🏠', 'Ana Sayfa'], ['tasks', '🎯', 'Görevler'], ['badges', '🏅', 'Rozetler'], ['profile', '👤', 'Profil'], ['settings', '⚙️', 'Ayarlar']];
+  return `<div class="nav">${items.map(([k, i, n]) => `<button class="${tab === k ? 'on' : ''}" onclick="go('${k}')"><span class="i">${i}</span>${n}</button>`).join('')}</div>`;
+}
+function go(t) { tab = t; beep('tap'); render(); }
+
+function render() {
+  rollDaily();
+  if (tab === 'home') return renderHome();
+  if (tab === 'tasks') return renderTasks();
+  if (tab === 'badges') return renderBadges();
+  if (tab === 'profile') return renderProfile();
+  if (tab === 'settings') return renderSettings();
+}
+
+function starStr(n) { return n ? '★'.repeat(n) + '☆'.repeat(3 - n) : ''; }
+
+function renderHome() {
+  const doneTasks = TASKS.filter(t => t.val(S.daily) >= t.goal).length;
+  app.innerHTML = header() + `<div class="scroll">
+    <div class="card daily"><div class="ic">🎯</div><div style="flex:1"><b>Günlük görevler</b><span class="muted" style="font-size:13px">${doneTasks}/3 tamamlandı · ödül: XP + joker</span></div>
+      <button class="btn ghost" style="padding:8px 12px;font-size:13px" onclick="go('tasks')">Gör</button></div>
+    <div class="quick"><button class="btn gold" onclick="startGame('karisik_mix')">🎲 Karışık Oyna</button><button class="btn teal" onclick="startGame('zaman')">⏱️ 60 sn</button></div>
+    <h2>Kategoriler</h2>
+    <div class="grid">${CATS.map(c => {
+      const st = S.catStars[c.id] || 0;
+      const isNew = c.isNew && !(S.perCat[c.id] || {}).p;
+      return `<button class="cat ${isNew ? 'new' : ''}" onclick="startGame('${c.id}')"><span class="e">${c.e}</span><b>${c.n}</b><span class="d">${c.d}</span>${st ? `<span class="st">${starStr(st)}</span>` : ''}</button>`;
+    }).join('')}</div>
+  </div>` + nav();
+}
+
+function renderTasks() {
+  const days = [];
+  for (let i = 6; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate() - i); const k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); days.push([['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'][d.getDay()], S.streak.days.includes(k)]); }
+  app.innerHTML = header() + `<div class="scroll">
+    <h2>Günlük Seri</h2>
+    <div class="card"><b>🔥 ${S.streak.count} gün</b> <span class="muted" style="font-size:13px">· en iyi: ${S.streak.best} gün</span>
+      <div class="week">${days.map(([n, on]) => `<div class="day ${on ? 'on' : ''}"><i>${on ? '🔥' : ''}</i>${n}</div>`).join('')}</div></div>
+    <h2 style="margin-top:18px">Bugünün Görevleri</h2>
+    ${TASKS.map(t => {
+      const v = Math.min(t.val(S.daily), t.goal), done = v >= t.goal, claimed = S.daily.claimed.includes(t.id);
+      const jn = { half: 'Yarı Yarıya', hint: 'İpucu', pass: 'Pas' }[t.joker];
+      return `<div class="card task"><div class="ic">${t.e}</div><div class="tb"><b>${t.n}</b>
+        <div class="bar light" style="margin:6px 0 4px"><i style="width:${v / t.goal * 100}%"></i></div>
+        <span class="muted" style="font-size:12px">${v}/${t.goal} · +${t.xp} XP, +1 ${jn}</span></div>
+        ${claimed ? '<span class="done">Alındı ✓</span>' : `<button class="claim" ${done ? '' : 'disabled'} onclick="claim('${t.id}')">Al</button>`}</div>`;
+    }).join('')}
+    <p class="muted" style="font-size:12.5px;text-align:center">Görevler her gece yenilenir.</p>
+  </div>` + nav();
+}
+function claim(id) {
+  const t = TASKS.find(x => x.id === id); if (S.daily.claimed.includes(id)) return;
+  S.daily.claimed.push(id); S.jokers[t.joker]++; addXP(t.xp); save(); beep('ok'); toast(`+${t.xp} XP ve 1 joker kazandın!`); render();
+}
+
+function renderBadges() {
+  const got = BADGES.filter(b => S.badges.includes(b.id)).length;
+  app.innerHTML = header() + `<div class="scroll"><h2>Rozetler <span class="muted" style="font-size:14px">${got}/${BADGES.length}</span></h2>
+    <div class="badges">${BADGES.map(b => `<div class="badge ${S.badges.includes(b.id) ? '' : 'lock'}"><div class="e">${b.e}</div><b>${b.n}</b><span>${b.d}</span></div>`).join('')}</div></div>` + nav();
+}
+
+function renderProfile() {
+  const li = levelInfo(S.xp), st = S.stats;
+  const rate = st.answered ? Math.round(st.correct / st.answered * 100) : 0;
+  app.innerHTML = header() + `<div class="scroll">
+    <h2>İstatistikler</h2>
+    <div class="stat4">
+      <div class="rbox"><b>${st.answered}</b><span>Cevaplanan</span></div>
+      <div class="rbox"><b>${st.correct}</b><span>Doğru</span></div>
+      <div class="rbox"><b>%${rate}</b><span>Başarı</span></div>
+      <div class="rbox"><b>${st.rounds}</b><span>Tamamlanan tur</span></div>
+      <div class="rbox"><b>${S.xp}</b><span>Toplam XP</span></div>
+      <div class="rbox"><b>${st.timeBest}</b><span>60 sn rekoru</span></div>
+    </div>
+    <h2>Jokerlerin</h2>
+    <div class="card" style="display:flex;justify-content:space-around;text-align:center;font-weight:800">
+      <div>🌓<br>${S.jokers.half}<div class="muted" style="font-size:11px">Yarı Yarıya</div></div>
+      <div>💡<br>${S.jokers.hint}<div class="muted" style="font-size:11px">İpucu</div></div>
+      <div>⏭️<br>${S.jokers.pass}<div class="muted" style="font-size:11px">Beyzgeç hakkı</div></div></div>
+    <h2 style="margin-top:18px">Kategori Ustalığı</h2>
+    <div class="card">${CATS.filter(c => c.id !== 'zaman').map(c => {
+      const pc = S.perCat[c.id] || { c: 0 }; const pct = Math.min(100, Math.round((pc.c || 0) / 50 * 100));
+      return `<div class="mrow"><div class="h"><span>${c.e} ${c.n}</span><span class="muted">${pc.c || 0}/50</span></div><div class="bar light"><i style="width:${pct}%"></i></div></div>`;
+    }).join('')}</div>
+    <p class="muted" style="font-size:12.5px;text-align:center">Bir kategoride 50 doğruya ulaşınca o kategorinin ustası olursun.</p>
+  </div>` + nav();
+}
+
+function renderSettings() {
+  const sw = (k) => `<button class="sw ${S.settings[k] ? 'on' : ''}" onclick="S.settings.${k}=!S.settings.${k};save();render()"></button>`;
+  app.innerHTML = header() + `<div class="scroll"><h2>Ayarlar</h2>
+    <div class="card">
+      <div class="set"><span>🔊 Ses efektleri</span>${sw('sound')}</div>
+      <div class="set"><span>📳 Titreşim</span>${sw('vib')}</div>
+      <div class="set"><span>⏳ Soru süresi</span><div class="seg">${[20, 30, 45].map(t => `<button class="${S.settings.time === t ? 'on' : ''}" onclick="S.settings.time=${t};save();render()">${t} sn</button>`).join('')}</div></div>
+    </div>
+    <h2 style="margin-top:18px">Diğer</h2>
+    <div class="card">
+      <div class="set"><button class="linkrow" onclick="info('nasil')">❓ Nasıl oynanır?</button></div>
+      <div class="set"><button class="linkrow" onclick="info('gizlilik')">🔒 Gizlilik politikası</button></div>
+      <div class="set"><button class="linkrow" onclick="info('hakkinda')">ℹ️ Hakkında</button></div>
+      <div class="set"><button class="linkrow" style="color:var(--no)" onclick="askReset()">🗑️ İlerlemeyi sıfırla</button></div>
+    </div></div>` + nav();
+}
+
+const INFO = {
+  nasil: ['Nasıl oynanır?', `<p>Bir kategori seç; her turda 10 soru gelir.</p><p><b style="color:var(--ok)">Beyzala</b> seçtiğin cevabı onaylar. <b style="color:var(--no)">Beyzgeç</b> soruyu puan kaybetmeden geçer; her turda sınırlı Beyzgeç hakkın vardır.</p><p>Jokerler: 🌓 <b>Yarı Yarıya</b> iki yanlış şıkkı siler, 💡 <b>İpucu</b> bir yanlış şıkkı siler ya da bir harf açar.</p><p>Doğru cevap XP kazandırır; hızlı cevap ek puan getirir. Turu %90 ve üstü bitirirsen 3 yıldız, %70 ile 2, %50 ile 1 yıldız alırsın. Her 3 yıldızlı tur 1 joker kazandırır.</p>`],
+  gizlilik: ['Gizlilik politikası', `<p>Beyzâlem hiçbir kişisel veri toplamaz, kaydetmez veya paylaşmaz.</p><p>Oyun ilerlemen (seviye, yıldızlar, rozetler) yalnızca cihazında saklanır ve uygulamayı sildiğinde silinir.</p><p>Uygulamada reklam, hesap açma ya da uygulama içi satın alma yoktur. İnternet bağlantısı gerektirmez.</p>`],
+  hakkinda: ['Hakkında', `<p><b>Beyzâlem</b> · sürüm 1.0</p><p>Kelime, dil ve genel kültür oyunu. Sorular özgün olarak hazırlanmıştır; atasözleri ve deyimler halkın ortak kültür mirasıdır.</p><p>Soru havuzunda ${POOL_SIZE} hazır soru bulunur; harf oyunları ${WORDS.length} kelimelik listeden her seferinde yeni soru üretir.</p>`],
+};
+function info(k) { const [t, b] = INFO[k]; modal(`<h3>${t}</h3><div class="prose" style="text-align:left">${b}</div><button class="btn teal wide" style="margin-top:12px" onclick="closeModal()">Tamam</button>`); }
+function askReset() {
+  modal(`<div style="font-size:40px">🗑️</div><h3>İlerleme sıfırlansın mı?</h3><p class="muted">Seviye, yıldız, rozet ve istatistiklerin silinir. Bu işlem geri alınamaz.</p>
+  <div class="actions"><button class="beyzgec" onclick="closeModal()">Beyzgeç<small>Vazgeç</small></button><button class="beyzala" onclick="S=fresh();save();closeModal();toast('İlerleme sıfırlandı');render()">Beyzala<small>Sıfırla</small></button></div>`);
+}
+
+function modal(html) { closeModal(); const m = document.createElement('div'); m.className = 'modal'; m.id = 'modal'; m.innerHTML = `<div class="mbox pop">${html}</div>`; app.appendChild(m); }
+function closeModal() { const m = document.getElementById('modal'); if (m) m.remove(); }
+let toastT;
+function toast(msg) {
+  let t = document.getElementById('toast'); if (!t) { t = document.createElement('div'); t.id = 'toast'; t.className = 'toast'; document.body.appendChild(t); }
+  const r = app.getBoundingClientRect(); t.style.left = (r.left + r.width / 2) + 'px';
+  t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ---------- OYUN ---------- */
+function startGame(catId) {
+  beep('tap');
+  const mix = catId === 'karisik_mix';
+  const realCat = mix ? null : catId;
+  const isTime = catId === 'zaman';
+  G = { catId: mix ? 'mix' : catId, mix, isTime, idx: 0, total: isTime ? 999 : 10, correct: 0, xpGain: 0, passes: S.jokers.pass > 0 ? Math.min(3, S.jokers.pass) : 0, passUsed: 0, q: null, answered: false, sel: null, clueN: 1, built: [], usedTiles: [], tLeft: isTime ? 60 : S.settings.time, newBadges: [], log: [] };
+  if (isTime) G.passes = 99;
+  nextQuestion();
+}
+function nextQuestion() {
+  if (!G.isTime && G.idx >= G.total) return finish();
+  const cat = G.mix ? pick(CATS.filter(c => c.id !== 'zaman')).id : G.catId;
+  G.q = makeQuestion(cat);
+  G.answered = false; G.sel = null; G.clueN = 1; G.built = []; G.usedTiles = []; G.gone = [];
+  if (G.q.kind === 'tiles' && G.q.mode === 'missing') G.built = [];
+  G.qStart = Date.now();
+  if (!G.isTime) G.tLeft = S.settings.time;
+  renderGame(); startTimer();
+}
+function startTimer() {
+  clearInterval(timerId);
+  timerId = setInterval(() => {
+    if (G.answered && !G.isTime) return;
+    G.tLeft--;
+    const el = document.getElementById('tm'); if (el) { el.textContent = G.tLeft; el.classList.toggle('warn', G.tLeft <= 5); }
+    if (G.tLeft <= 0) { if (G.isTime) { clearInterval(timerId); finish(); } else { answer(null, true); } }
+  }, 1000);
+}
+
+function slotsHTML() {
+  const q = G.q;
+  if (q.mode === 'scramble') {
+    return [...q.answer].map((_, i) => {
+      const ch = G.built[i]; let cls = ch ? 'fill' : '';
+      if (G.answered) cls = G.built.join('') === q.answer ? 'ok' : 'no';
+      return `<div class="slot ${cls}">${ch || ''}</div>`;
+    }).join('');
+  }
+  let k = 0;
+  return q.mask.map((c, i) => {
+    if (c) return `<div class="slot fixed">${c}</div>`;
+    const ch = G.built[k++]; let cls = ch ? 'fill' : '';
+    if (G.answered) cls = ch === q.answer[i] ? 'ok' : 'no';
+    return `<div class="slot ${cls}">${G.answered && ch !== q.answer[i] ? q.answer[i] : (ch || '')}</div>`;
+  }).join('');
+}
+function needSlots() { const q = G.q; return q.mode === 'scramble' ? q.answer.length : q.mask.filter(c => !c).length; }
+
+function renderGame() {
+  const q = G.q, cat = catById(q.cat) || catById('zaman');
+  const head = G.isTime ? `⏱️ Zamana Karşı · ${G.correct} doğru` : `${G.mix ? '🎲 Karışık' : cat.e + ' ' + cat.n}`;
+  const progress = G.isTime ? (G.tLeft / 60 * 100) : (G.idx / G.total * 100);
+  let body = `<div class="qcard ${G.answered ? '' : 'pop'}"><span class="qcat">${cat.e} ${cat.n}</span>`;
+
+  if (q.kind === 'tiles') {
+    body += `<div class="qsub" style="margin-top:12px">${q.mode === 'scramble' ? 'Harfleri doğru sıraya koy' : 'Eksik harfleri yerleştir'}</div>
+      <div class="slots">${slotsHTML()}</div>
+      <div class="tiles">${q.letters.map((l, i) => `<button class="tile ${G.usedTiles.includes(i) ? 'used' : ''}" ${G.answered ? 'disabled' : ''} onclick="tapTile(${i})">${l}</button>`).join('')}</div>
+      ${G.answered ? '' : `<div class="tilectl"><button onclick="undoTile()">↩ Geri al</button><button onclick="clearTiles()">✕ Temizle</button></div>`}`;
+  } else if (q.kind === 'clue') {
+    body += `<div class="qtext">${q.q}</div><div class="qsub">Ne kadar az ipucuyla bilirsen o kadar çok puan</div>
+      <div class="clues">${q.clues.map((c, i) => i < G.clueN || G.answered ? `<div class="clue">${i + 1}. ${c}</div>` : `<div class="clue lock">${i + 1}. ipucu kilitli</div>`).join('')}</div>
+      ${!G.answered && G.clueN < q.clues.length ? `<button class="morebtn" onclick="G.clueN++;beep('tap');renderGame()">🔓 Yeni ipucu aç (puan azalır)</button>` : ''}`;
+  } else {
+    const cls = q.emo ? 'qtext emo' : 'qtext';
+    body += `<div class="${cls}">${q.q}</div>${q.sub ? `<div class="qsub">${q.sub}</div>` : ''}`;
+  }
+  body += `</div>`;
+
+  if (q.kind === 'mc' || q.kind === 'clue') {
+    body += `<div class="opts">${q.opts.map((o, i) => {
+      let cls = '';
+      if (G.answered) { if (o === q.answer) cls = 'ok'; else if (o === G.sel) cls = 'no'; }
+      else if (G.sel === o) cls = 'sel';
+      if (!G.answered && G.gone.includes(o)) cls = 'gone';
+      return `<button class="opt ${cls}" ${G.answered ? 'disabled' : ''} onclick="choose(${i})"><span class="k">${'ABCD'[i]}</span>${o}</button>`;
+    }).join('')}</div>`;
+  }
+
+  if (G.answered && !G.isTime) {
+    const ok = G.lastOk;
+    body += `<div class="feedback ${ok ? 'ok' : 'no'}">${ok ? `✓ Beyzala! +${G.lastXP} XP` : (G.timeout ? '⏰ Süre doldu' : (G.passed ? '⏭️ Beyzgeç dedin' : '✗ Olmadı'))}
+      ${ok ? '' : `<small>Doğru cevap: ${q.kind === 'tiles' ? q.answer : q.answer}</small>`}</div>`;
+  }
+
+  const isMC = q.kind === 'mc' || q.kind === 'clue';
+  const canHalf = !G.answered && isMC && S.jokers.half > 0 && q.opts.length > 2 && !G.halfUsedOnQ;
+  const canHint = !G.answered && S.jokers.hint > 0 && (q.kind === 'tiles' ? G.built.length < needSlots() : q.opts.filter(o => o !== q.answer && !G.gone.includes(o)).length > 1);
+  const ready = q.kind === 'tiles' ? G.built.length === needSlots() : G.sel !== null;
+
+  let foot;
+  if (G.answered && !G.isTime) {
+    foot = `<div class="actions"><button class="beyzala" onclick="G.idx++;nextQuestion()">${G.idx + 1 >= G.total ? 'Sonuçları gör' : 'Sonraki soru ➜'}</button></div>`;
+  } else {
+    foot = `${G.isTime ? '' : `<div class="jokers">
+        <button class="joker" ${canHalf ? '' : 'disabled'} onclick="useHalf()">🌓 Yarı Yarıya <b>${S.jokers.half}</b></button>
+        <button class="joker" ${canHint ? '' : 'disabled'} onclick="useHint()">💡 İpucu <b>${S.jokers.hint}</b></button></div>`}
+      <div class="actions">
+        <button class="beyzgec" ${G.passes - G.passUsed > 0 ? '' : 'disabled'} onclick="pass()">Beyzgeç<small>${G.isTime ? 'Geç' : 'Pas · ' + (G.passes - G.passUsed) + ' hak'}</small></button>
+        <button class="beyzala" ${ready ? '' : 'disabled'} onclick="confirmAns()">Beyzala<small>${G.isTime ? 'Onayla' : 'Cevabı onayla'}</small></button>
+      </div>`;
+  }
+
+  app.innerHTML = `<div class="gtop"><button class="x" onclick="quitAsk()">✕</button>
+      <div class="prog"><div class="gmeta"><span>${head}</span><span>${G.isTime ? '' : (G.idx + 1) + '/' + G.total}</span></div><div class="bar"><i style="width:${progress}%"></i></div></div>
+      <div class="timer ${G.tLeft <= 5 ? 'warn' : ''}" id="tm">${G.tLeft}</div></div>
+    <div class="gbody">${body}</div>
+    <div class="gfoot">${foot}</div>`;
+}
+
+function choose(i) { if (G.answered) return; G.sel = G.q.opts[i]; beep('tap'); renderGame(); }
+function tapTile(i) {
+  if (G.answered || G.usedTiles.includes(i) || G.built.length >= needSlots()) return;
+  G.usedTiles.push(i); G.built.push(G.q.letters[i]); beep('tap'); renderGame();
+}
+function undoTile() { if (!G.usedTiles.length) return; const i = G.usedTiles.pop(); G.built.pop(); renderGame(); }
+function clearTiles() { G.usedTiles = []; G.built = []; renderGame(); }
+
+function useHalf() {
+  const q = G.q; const wrong = shuffle(q.opts.filter(o => o !== q.answer && !G.gone.includes(o)));
+  G.gone.push(...wrong.slice(0, Math.max(0, wrong.length - 1)).slice(0, 2));
+  if (G.gone.includes(G.sel)) G.sel = null;
+  S.jokers.half--; G.halfUsedOnQ = true; save(); beep('tap'); renderGame();
+}
+function useHint() {
+  const q = G.q;
+  if (q.kind === 'tiles') {
+    // doğru sıradaki bir sonraki harfi yerleştir
+    const target = q.mode === 'scramble' ? [...q.answer] : q.mask.map((c, i) => c ? null : q.answer[i]).filter(Boolean);
+    // önce yanlış girilen harfleri geri al
+    while (G.built.length && G.built.some((c, i) => c !== target[i])) { G.usedTiles.pop(); G.built.pop(); }
+    const need = target[G.built.length];
+    const ti = q.letters.findIndex((l, i) => l === need && !G.usedTiles.includes(i));
+    if (ti >= 0) { G.usedTiles.push(ti); G.built.push(need); }
+  } else {
+    const wrong = shuffle(q.opts.filter(o => o !== q.answer && !G.gone.includes(o)));
+    if (wrong.length) G.gone.push(wrong[0]);
+    if (G.gone.includes(G.sel)) G.sel = null;
+  }
+  S.jokers.hint--; save(); beep('tap'); renderGame();
+}
+function pass() {
+  if (G.passes - G.passUsed <= 0) return;
+  G.passUsed++;
+  if (G.isTime) { nextQuestion(); return; }
+  S.jokers.pass = Math.max(0, S.jokers.pass - 1);
+  answer(null, false, true);
+}
+function confirmAns() {
+  const q = G.q;
+  const val = q.kind === 'tiles' ? (q.mode === 'scramble' ? G.built.join('') : (() => { let k = 0; return q.mask.map(c => c || G.built[k++]).join(''); })()) : G.sel;
+  answer(val);
+}
+function answer(val, timeout = false, passed = false) {
+  if (G.answered && !G.isTime) return;
+  const q = G.q; const ok = !timeout && !passed && val === q.answer;
+  const secs = (Date.now() - G.qStart) / 1000;
+  let xp = 0;
+  if (ok) {
+    xp = 10;
+    if (q.kind === 'clue') xp = [20, 15, 10, 6][G.clueN - 1];
+    if (secs < 8 && !G.isTime) xp += 5;
+    if (q.kind === 'clue' && G.clueN === 1) S.stats.firstClue++;
+  }
+  // istatistik
+  if (!passed) {
+    S.stats.answered++; S.daily.answered++;
+    if (ok) S.stats.correct++;
+    const pc = S.perCat[q.cat] = S.perCat[q.cat] || { p: 0, c: 0 }; pc.p++; if (ok) pc.c++;
+  }
+  if (!S.daily.cats.includes(G.mix ? q.cat : G.catId)) S.daily.cats.push(G.mix ? q.cat : G.catId);
+  if (ok) { G.correct++; G.xpGain += xp; beep('ok'); buzz(20); } else if (!passed) { beep('no'); buzz([40, 40, 40]); }
+  G.log.push(ok);
+  save();
+  if (G.isTime) {
+    if (!ok && !passed) { const b = document.querySelector('.qcard'); if (b) b.classList.add('shake'); }
+    setTimeout(nextQuestion, ok ? 150 : 450);
+    return;
+  }
+  G.answered = true; G.lastOk = ok; G.lastXP = xp; G.timeout = timeout; G.passed = passed; G.halfUsedOnQ = false;
+  if (!passed && val !== null && q.kind !== 'tiles') G.sel = val;
+  renderGame();
+}
+
+function quitAsk() {
+  modal(`<div style="font-size:40px">🚪</div><h3>Turdan çıkılsın mı?</h3><p class="muted">Bu turdaki ilerlemen kaydedilmez.</p>
+  <div class="actions"><button class="beyzgec" onclick="closeModal()">Beyzgeç<small>Devam et</small></button><button class="beyzala" onclick="clearInterval(timerId);closeModal();G=null;tab='home';render()">Beyzala<small>Çık</small></button></div>`);
+}
+
+function addXP(n) {
+  const before = levelInfo(S.xp).lv; S.xp += n; const after = levelInfo(S.xp).lv;
+  if (after > before) { setTimeout(() => { beep('up'); toast(`🎉 Seviye ${after}! Unvanın: ${titleOf(after)}`); }, 700); S.jokers.hint++; }
+}
+function checkBadges() {
+  const fresh = []; BADGES.forEach(b => { if (!S.badges.includes(b.id) && b.ok(S)) { S.badges.push(b.id); fresh.push(b); } }); return fresh;
+}
+function markStreak() {
+  const t = today(); if (S.streak.last === t) return;
+  const y = new Date(); y.setDate(y.getDate() - 1);
+  const yk = y.getFullYear() + '-' + String(y.getMonth() + 1).padStart(2, '0') + '-' + String(y.getDate()).padStart(2, '0');
+  S.streak.count = S.streak.last === yk ? S.streak.count + 1 : 1;
+  S.streak.last = t; S.streak.best = Math.max(S.streak.best, S.streak.count);
+  S.streak.days.push(t); S.streak.days = S.streak.days.slice(-30);
+}
+
+function finish() {
+  clearInterval(timerId);
+  let stars = 0, total;
+  if (G.isTime) {
+    total = G.log.length;
+    stars = G.correct >= 15 ? 3 : G.correct >= 10 ? 2 : G.correct >= 5 ? 1 : 0;
+    S.stats.timeBest = Math.max(S.stats.timeBest, G.correct);
+  } else {
+    total = G.total;
+    const r = G.correct / total; stars = r >= .9 ? 3 : r >= .7 ? 2 : r >= .5 ? 1 : 0;
+  }
+  const bonus = stars * 10;
+  S.stats.rounds++;
+  if (!G.isTime && G.correct === total) S.stats.perfect++;
+  S.starsTotal += stars;
+  if (!G.mix) { S.catStars[G.catId] = Math.max(S.catStars[G.catId] || 0, stars); const pc = S.perCat[G.catId] = S.perCat[G.catId] || { p: 0, c: 0 }; pc.p = pc.p || 1; }
+  if (stars === 3) { S.daily.three = true; S.jokers.half++; }
+  markStreak();
+  addXP(G.xpGain + bonus);
+  const nb = checkBadges();
+  save();
+  const li = levelInfo(S.xp);
+  const msg = stars === 3 ? 'Muhteşem! 👏' : stars === 2 ? 'Çok iyi!' : stars === 1 ? 'Fena değil!' : 'Bir dahakine!';
+  app.innerHTML = `<div class="scroll result">
+    <div class="logo" style="color:var(--teal);font-size:22px">Beyz<span style="color:var(--gold)">â</span>lem</div>
+    <h2 style="font-size:26px;margin-top:14px">${msg}</h2>
+    <div class="stars">${[1, 2, 3].map(i => `<span class="s" id="s${i}">⭐</span>`).join('')}</div>
+    <div class="rgrid">
+      <div class="rbox"><b>${G.correct}${G.isTime ? '' : '/' + total}</b><span>Doğru</span></div>
+      <div class="rbox"><b>+${G.xpGain + bonus}</b><span>XP</span></div>
+      <div class="rbox"><b>${stars}</b><span>Yıldız</span></div></div>
+    <div class="card" style="text-align:left"><b>${titleOf(li.lv)} · Seviye ${li.lv}</b><div class="bar light" style="margin-top:8px"><i style="width:${li.rest / li.need * 100}%"></i></div><div class="muted" style="font-size:12px;margin-top:4px">${li.rest} / ${li.need} XP</div></div>
+    ${stars === 3 ? `<div class="newb">🎁 3 yıldız ödülü: +1 Yarı Yarıya jokeri</div>` : ''}
+    ${nb.map(b => `<div class="newb">🏅 Yeni rozet: ${b.e} <b>${b.n}</b></div>`).join('')}
+    <div class="actions" style="margin-top:18px"><button class="beyzgec" style="color:var(--teal);border-color:var(--line)" onclick="G=null;tab='home';render()">Ana Sayfa</button>
+    <button class="beyzala" onclick="startGame('${G.mix ? 'karisik_mix' : G.catId}')">Tekrar Oyna</button></div>
+  </div>`;
+  [1, 2, 3].forEach(i => setTimeout(() => { if (i <= stars) { const s = document.getElementById('s' + i); if (s) { s.classList.add('on'); beep('tap'); } } }, 300 + i * 350));
+  if (stars === 3) buzz([30, 60, 30]);
+}
+
+/* ---------- AÇILIŞ ---------- */
+render();
+const sp = document.createElement('div'); sp.className = 'splash';
+sp.innerHTML = `<div class="logo">Beyz<span>â</span>lem</div><p>Kelimelerle bilgi yarışı</p>`;
+app.appendChild(sp);
+setTimeout(() => { sp.style.opacity = 0; setTimeout(() => sp.remove(), 500); }, 1200);
+</script>
 </body>
 </html>
