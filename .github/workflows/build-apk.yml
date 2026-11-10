@@ -23,14 +23,21 @@ jobs:
           distribution: temurin
           java-version: 21
 
-
       - name: Bağımlılıkları kur
         run: npm ci
 
-      - name: Android projesini eşitle
+      - name: Android projesini hazırla
         run: |
           if [ ! -d android ]; then npx cap add android; fi
-          npx cap sync android
+
+      - name: İkon ve açılış ekranını üret
+        run: |
+          pip install --quiet pillow
+          cp assets/icon.jpg www/icon.jpg
+          python3 scripts/icons.py
+
+      - name: Android projesini eşitle
+        run: npx cap sync android
 
       - name: APK derle
         working-directory: android

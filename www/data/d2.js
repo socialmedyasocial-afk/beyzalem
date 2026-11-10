@@ -500,3 +500,6 @@ Oğlan dayıya, kız … çeker.|halaya|teyzeye|anneye|nineye
 Sel gider, … kalır.|kum|su|taş|çamur
 Tavşan dağa küsmüş, dağın … olmamış.|haberi|ruhu|sesi|derdi
 `;
+
+// v1.1 ek veri ve oyun motoru
+document.write('<script src="data/d5.js"><\/script>');
